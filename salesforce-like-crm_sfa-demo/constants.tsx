@@ -1,7 +1,6 @@
-
 import React from 'react';
 // Added OpportunityStage to imports to fix the missing type error
-import { Account, Contact, Opportunity, Activity, OpportunityStage } from './types';
+import { Account, Contact, Opportunity, Activity, OpportunityStage, Lead, Task } from './types';
 import { Mail, Phone, MapPin, Users } from 'lucide-react';
 
 export const ACCOUNTS: Account[] = [
@@ -28,6 +27,20 @@ export const OPPORTUNITIES: Opportunity[] = [
   { id: 'opp8', name: 'モバイルアプリ開発', accountId: 'acc8', accountName: '教育フューチャー株式会社', amount: 45000000, stage: 'Lead', probability: 5, closeDate: '2024-12-25', owner: '小林 幸子' },
   { id: 'opp9', name: 'CRMカスタマイズ支援', accountId: 'acc1', accountName: '株式会社テクノロジー・ジャパン', amount: 2500000, stage: 'Closed Won', probability: 100, closeDate: '2024-03-15', owner: '山田 太郎' },
   { id: 'opp10', name: 'オフィス内装工事・ネットワーク構築', accountId: 'acc10', accountName: 'アーバン・プロパティーズ', amount: 18000000, stage: 'Closed Lost', probability: 0, closeDate: '2024-04-30', owner: '中村 剛' },
+];
+
+export const LEADS: Lead[] = [
+  { id: 'lead1', name: '田中 健二', company: '株式会社サンプル商事', title: 'IT部長', email: 'tanaka@sample.jp', status: 'Working - Contacted', owner: '山田 太郎', source: 'Web' },
+  { id: 'lead2', name: '佐藤 真紀', company: 'テック・ソリューション', title: 'CEO', email: 'm.sato@tech-sol.com', status: 'Open - Not Contacted', owner: '佐藤 健一', source: 'イベント' },
+  { id: 'lead3', name: '鈴木 浩介', company: '新日本マニュファクチャリング', title: '購買担当', email: 'k.suzuki@snm.co.jp', status: 'Open - Not Contacted', owner: '鈴木 一郎', source: '紹介' },
+  { id: 'lead4', name: '伊藤 恵美', company: 'クリエイティブ・エージェンシー', title: 'ディレクター', email: 'emi@creative.jp', status: 'Working - Contacted', owner: '高橋 花子', source: 'Web' },
+];
+
+export const TASKS: Task[] = [
+  { id: 'task1', subject: 'テクノロジー・ジャパン様へ資料送付', relatedTo: '株式会社テクノロジー・ジャパン', dueDate: '2024-05-20', status: 'Not Started', priority: 'High', owner: '山田 太郎' },
+  { id: 'task2', subject: '未来エナジー合同会社様 定例会', relatedTo: '未来エナジー合同会社', dueDate: '2024-05-21', status: 'In Progress', priority: 'Normal', owner: '佐藤 健一' },
+  { id: 'task3', subject: '新規見込み客への初回コール', relatedTo: '株式会社サンプル商事', dueDate: '2024-05-19', status: 'Completed', priority: 'Normal', owner: '山田 太郎' },
+  { id: 'task4', subject: '四半期報告書の作成', relatedTo: '営業本部', dueDate: '2024-05-25', status: 'Not Started', priority: 'Normal', owner: '山田 太郎' },
 ];
 
 export const ACTIVITIES: Activity[] = [

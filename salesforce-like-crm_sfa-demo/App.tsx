@@ -1,30 +1,31 @@
-
 import React, { useState, useEffect } from 'react';
-import { 
-  Home, 
-  BarChart3, 
-  Users, 
-  Briefcase, 
-  CheckSquare, 
-  FileText, 
-  Calendar, 
-  Menu, 
-  Search, 
-  Bell, 
-  Settings, 
-  ChevronDown, 
-  Plus, 
+import {
+  Home,
+  BarChart3,
+  Users,
+  Briefcase,
+  CheckSquare,
+  FileText,
+  Calendar,
+  Menu,
+  Search,
+  Bell,
+  Settings,
+  ChevronDown,
+  Plus,
   LayoutGrid,
   Filter,
   MoreVertical,
   Activity as ActivityIcon,
-  // Added missing icons to fix errors on lines 121 and 396
   MapPin,
   Mail,
-  Phone
+  Phone,
+  UserPlus,
+  ClipboardList,
+  AlertCircle
 } from 'lucide-react';
-import { PageType, Account, Opportunity } from './types';
-import { ACCOUNTS, OPPORTUNITIES, ACTIVITIES } from './constants';
+import { PageType, Account, Opportunity, Lead, Task } from './types';
+import { ACCOUNTS, OPPORTUNITIES, ACTIVITIES, LEADS, TASKS } from './constants';
 import { InfoIcon } from './components/InfoIcon';
 import { ChatBot } from './components/ChatBot';
 import { StagePath } from './components/StagePath';
@@ -75,16 +76,25 @@ const HomePage = ({ navigateTo }: { navigateTo: (p: PageType, id?: string) => vo
           </div>
         </div>
 
-        {/* Tasks */}
+        {/* Tasks Summary */}
         <div className="sfdc-card">
           <div className="p-3 border-b flex justify-between items-center">
             <h3 className="font-bold text-sm flex items-center gap-2">
               <CheckSquare size={16} className="text-blue-500" /> 今日のToDo
             </h3>
-            <button className="text-blue-600 text-xs hover:underline">すべて表示</button>
+            <button onClick={() => navigateTo('tasks')} className="text-blue-600 text-xs hover:underline">すべて表示</button>
           </div>
-          <div className="p-8 text-center text-gray-500 text-sm">
-            今日の締め切りの未決のToDoはありません
+          <div className="p-0">
+            {TASKS.slice(0, 3).map(task => (
+              <div key={task.id} className="p-3 border-b flex items-center gap-3 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigateTo('tasks')}>
+                 <input type="checkbox" readOnly checked={task.status === 'Completed'} className="rounded" />
+                 <div className="flex-1">
+                    <div className="text-xs font-bold">{task.subject}</div>
+                    <div className="text-[10px] text-gray-500">{task.relatedTo} • {task.dueDate}</div>
+                 </div>
+                 {task.priority === 'High' && <AlertCircle size={14} className="text-red-500" />}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -197,11 +207,129 @@ const AccountsPage = ({ navigateTo }: { navigateTo: (p: PageType, id?: string) =
   );
 };
 
+const LeadsPage = () => {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="bg-[#4BC076] p-2 rounded text-white shadow-sm"><UserPlus size={24} /></div>
+          <div>
+            <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">リード</div>
+            <div className="flex items-center gap-1 font-bold text-lg">
+              すべてのリード <ChevronDown size={14} className="mt-1" />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button className="bg-white border rounded px-4 py-1.5 text-xs font-medium hover:bg-gray-50">新規</button>
+          <button className="bg-white border rounded p-1.5 text-gray-500"><Filter size={16} /></button>
+        </div>
+      </div>
+
+      <div className="sfdc-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="p-3 w-8"><input type="checkbox" className="rounded" /></th>
+                <th className="p-3">名前</th>
+                <th className="p-3">会社名</th>
+                <th className="p-3">役職</th>
+                <th className="p-3">メール</th>
+                <th className="p-3">状況</th>
+                <th className="p-3">所有者</th>
+              </tr>
+            </thead>
+            <tbody>
+              {LEADS.map(lead => (
+                <tr key={lead.id} className="border-b hover:bg-gray-50">
+                  <td className="p-3"><input type="checkbox" className="rounded" /></td>
+                  <td className="p-3 text-blue-600 font-medium hover:underline cursor-pointer">{lead.name}</td>
+                  <td className="p-3">{lead.company}</td>
+                  <td className="p-3">{lead.title}</td>
+                  <td className="p-3 text-blue-600">{lead.email}</td>
+                  <td className="p-3">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] ${lead.status.includes('Working') ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
+                      {lead.status}
+                    </span>
+                  </td>
+                  <td className="p-3">{lead.owner}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TasksPage = () => {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="bg-[#46A1FF] p-2 rounded text-white shadow-sm"><ClipboardList size={24} /></div>
+          <div>
+            <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">ToDo</div>
+            <div className="flex items-center gap-1 font-bold text-lg">
+              最近参照したデータ <ChevronDown size={14} className="mt-1" />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button className="bg-white border rounded px-4 py-1.5 text-xs font-medium hover:bg-gray-50">新規ToDo</button>
+          <button className="bg-white border rounded px-4 py-1.5 text-xs font-medium hover:bg-gray-50">新規行動</button>
+        </div>
+      </div>
+
+      <div className="sfdc-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="p-3 w-8"><input type="checkbox" className="rounded" /></th>
+                <th className="p-3">件名</th>
+                <th className="p-3">関連先</th>
+                <th className="p-3">期日</th>
+                <th className="p-3">状況</th>
+                <th className="p-3">優先度</th>
+                <th className="p-3">所有者</th>
+              </tr>
+            </thead>
+            <tbody>
+              {TASKS.map(task => (
+                <tr key={task.id} className="border-b hover:bg-gray-50">
+                  <td className="p-3"><input type="checkbox" checked={task.status === 'Completed'} readOnly className="rounded" /></td>
+                  <td className="p-3 text-blue-600 font-medium hover:underline cursor-pointer">{task.subject}</td>
+                  <td className="p-3">{task.relatedTo}</td>
+                  <td className="p-3">{task.dueDate}</td>
+                  <td className="p-3">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] ${task.status === 'Completed' ? 'bg-green-100 text-green-700' : task.status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                      {task.status}
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${task.priority === 'High' ? 'text-red-500' : 'text-gray-500'}`}>
+                      {task.priority}
+                    </span>
+                  </td>
+                  <td className="p-3">{task.owner}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const OpportunitiesPage = ({ navigateTo }: { navigateTo: (p: PageType, id?: string) => void }) => {
   const [view, setView] = useState<'list' | 'kanban'>('kanban');
-  
+
   const stageColumns = ['Lead', 'Proposal', 'Negotiation', 'Contract', 'Closed Won'];
-  
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -216,11 +344,11 @@ const OpportunitiesPage = ({ navigateTo }: { navigateTo: (p: PageType, id?: stri
         </div>
         <div className="flex gap-2">
           <div className="flex border rounded overflow-hidden">
-            <button 
+            <button
               onClick={() => setView('list')}
               className={`px-3 py-1.5 text-xs font-medium ${view === 'list' ? 'bg-gray-100' : 'bg-white'}`}
             >リスト</button>
-            <button 
+            <button
               onClick={() => setView('kanban')}
               className={`px-3 py-1.5 text-xs font-medium ${view === 'kanban' ? 'bg-gray-100' : 'bg-white'}`}
             >Kanban</button>
@@ -245,7 +373,6 @@ const OpportunitiesPage = ({ navigateTo }: { navigateTo: (p: PageType, id?: stri
               </thead>
               <tbody>
                 {OPPORTUNITIES.map(opp => (
-                  // Fix: Error on line 248: Cannot find name 'Lantern'. Changed 'Lantern.id' to 'opp.id'.
                   <tr key={opp.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => navigateTo('opportunity_detail', opp.id)}>
                     <td className="p-3 text-blue-600 font-medium">{opp.name}</td>
                     <td className="p-3">{opp.accountName}</td>
@@ -275,8 +402,8 @@ const OpportunitiesPage = ({ navigateTo }: { navigateTo: (p: PageType, id?: stri
               </div>
               <div className="flex-1 overflow-y-auto space-y-2 bg-gray-50 p-2 rounded-b">
                 {OPPORTUNITIES.filter(o => o.stage === stage).map(o => (
-                  <div 
-                    key={o.id} 
+                  <div
+                    key={o.id}
                     className="sfdc-card p-3 space-y-2 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
                     onClick={() => navigateTo('opportunity_detail', o.id)}
                   >
@@ -350,7 +477,7 @@ const OpportunityDetailPage = ({ oppId, navigateTo }: { oppId: string; navigateT
           <div className="sfdc-card bg-white">
             <div className="flex border-b">
               {['activity', 'detail', 'related'].map(tab => (
-                <button 
+                <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
                   className={`px-4 py-2 text-xs font-bold transition-colors ${activeTab === tab ? 'border-b-2 border-sfdc-blue text-sfdc-blue' : 'text-gray-500'}`}
@@ -517,7 +644,6 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showToast, setShowToast] = useState(false);
 
   const navigateTo = (page: PageType, id?: string) => {
     setIsLoading(true);
@@ -540,13 +666,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Global Toast */}
-      {showToast && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded shadow-2xl z-[100] transition-all transform animate-bounce">
-          保存しました
-        </div>
-      )}
-
       {/* Header */}
       <header className="fixed top-0 w-full z-40 bg-white border-b sfdc-shadow">
         <div className="h-12 px-4 flex items-center justify-between">
@@ -555,7 +674,7 @@ export default function App() {
               <LayoutGrid size={20} />
             </button>
             <div className="font-bold text-lg sfdc-blue tracking-tight select-none">セールス</div>
-            
+
             <div className="relative ml-4 hidden md:block">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Search size={16} /></div>
               <input
@@ -611,19 +730,14 @@ export default function App() {
             {activePage === 'account_detail' && (
               <div className="sfdc-card p-12 text-center text-gray-400">
                 <h2 className="text-xl font-bold mb-4">取引先詳細: {ACCOUNTS.find(a => a.id === selectedId)?.name}</h2>
-                <p>デモのため、取引先詳細は商談詳細と同じようなレイアウトで実装可能です。</p>
                 <button onClick={() => navigateTo('accounts')} className="mt-4 text-blue-600 hover:underline">一覧に戻る</button>
               </div>
             )}
             {activePage === 'opportunities' && <OpportunitiesPage navigateTo={navigateTo} />}
             {activePage === 'opportunity_detail' && <OpportunityDetailPage oppId={selectedId!} navigateTo={navigateTo} />}
-            {activePage === 'reports' || activePage === 'dashboards' ? <DashboardPage /> : null}
-            {activePage === 'leads' || activePage === 'tasks' ? (
-              <div className="p-20 text-center text-gray-500">
-                <p className="text-lg">このページはデモ対象外です。</p>
-                <button onClick={() => navigateTo('home')} className="mt-4 text-blue-600 hover:underline">ホームに戻る</button>
-              </div>
-            ) : null}
+            {activePage === 'leads' && <LeadsPage />}
+            {activePage === 'tasks' && <TasksPage />}
+            {(activePage === 'reports' || activePage === 'dashboards') && <DashboardPage />}
           </>
         )}
       </main>

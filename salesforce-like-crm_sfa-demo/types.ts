@@ -1,4 +1,3 @@
-
 export type PageType = 'home' | 'accounts' | 'account_detail' | 'opportunities' | 'opportunity_detail' | 'reports' | 'dashboards' | 'leads' | 'tasks';
 
 export interface Account {
@@ -32,6 +31,27 @@ export interface Opportunity {
   stage: OpportunityStage;
   probability: number;
   closeDate: string;
+  owner: string;
+}
+
+export interface Lead {
+  id: string;
+  name: string;
+  company: string;
+  title: string;
+  email: string;
+  status: 'Open - Not Contacted' | 'Working - Contacted' | 'Closed - Converted' | 'Closed - Not Converted';
+  owner: string;
+  source: string;
+}
+
+export interface Task {
+  id: string;
+  subject: string;
+  relatedTo: string;
+  dueDate: string;
+  status: 'Not Started' | 'In Progress' | 'Completed' | 'Deferred';
+  priority: 'High' | 'Normal' | 'Low';
   owner: string;
 }
 
